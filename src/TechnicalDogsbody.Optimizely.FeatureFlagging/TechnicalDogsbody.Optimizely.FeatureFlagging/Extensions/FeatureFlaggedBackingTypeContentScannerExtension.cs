@@ -24,10 +24,7 @@ public class FeatureFlaggedBackingTypeContentScannerExtension(IFeatureManager fe
                 continue;
             }
 
-            bool isFeatureEnabled = featureManager
-                .IsEnabledAsync(featureBackingType.FeatureName)
-                .GetAwaiter()
-                .GetResult();
+            bool isFeatureEnabled = featureManager.IsEnabled(featureBackingType.FeatureName);
 
             var backingType = isFeatureEnabled
                 ? featureBackingType.EnabledBackingType

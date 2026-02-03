@@ -24,10 +24,7 @@ public class FeatureFlaggedCultureSpecificContentScannerExtension(IFeatureManage
                 continue;
             }
 
-            bool isFeatureEnabled = featureManager
-                .IsEnabledAsync(featureCultureSpecific.FeatureName)
-                .GetAwaiter()
-                .GetResult();
+            bool isFeatureEnabled = featureManager.IsEnabled(featureCultureSpecific.FeatureName);
 
             bool shouldBeCultureSpecific = featureCultureSpecific.CultureSpecificWhenEnabled ? isFeatureEnabled : !isFeatureEnabled;
 

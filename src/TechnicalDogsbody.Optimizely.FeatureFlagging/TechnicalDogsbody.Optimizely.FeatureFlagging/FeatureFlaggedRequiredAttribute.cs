@@ -1,10 +1,11 @@
 namespace TechnicalDogsbody.Optimizely.FeatureFlagging;
 
-using System.ComponentModel.DataAnnotations;
 using EPiServer.ServiceLocation;
 using EPiServer.Shell.ObjectEditing;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using Microsoft.FeatureManagement;
+using System.ComponentModel.DataAnnotations;
+using TechnicalDogsbody.Optimizely.FeatureFlagging.Extensions;
 
 [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
 public class FeatureFlaggedRequiredAttribute(string featureName, bool requiredWhenEnabled = true) : ValidationAttribute, IDisplayMetadataProvider
@@ -16,10 +17,7 @@ public class FeatureFlaggedRequiredAttribute(string featureName, bool requiredWh
     {
         var featureManager = ServiceLocator.Current.GetInstance<IFeatureManager>();
 
-        bool isFeatureEnabled = featureManager
-            .IsEnabledAsync(FeatureName)
-            .GetAwaiter()
-            .GetResult();
+        bool isFeatureEnabled = featureManager.IsEnabled(FeatureName);
 
         bool shouldBeRequired = RequiredWhenEnabled ? isFeatureEnabled : !isFeatureEnabled;
 

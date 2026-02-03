@@ -15,10 +15,7 @@ public class FeatureFlaggedIgnoreContentScannerExtension(IFeatureManager feature
             return false;
         }
 
-        bool isFeatureEnabled = featureManager
-            .IsEnabledAsync(featureScaffold.FeatureName)
-            .GetAwaiter()
-            .GetResult();
+        bool isFeatureEnabled = featureManager.IsEnabled(featureScaffold.FeatureName);
 
         return !isFeatureEnabled;
     }

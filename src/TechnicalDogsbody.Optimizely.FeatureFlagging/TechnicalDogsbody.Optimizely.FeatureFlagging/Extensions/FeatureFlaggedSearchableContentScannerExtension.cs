@@ -24,10 +24,7 @@ public class FeatureFlaggedSearchableContentScannerExtension(IFeatureManager fea
                 continue;
             }
 
-            bool isFeatureEnabled = featureManager
-                .IsEnabledAsync(featureSearchable.FeatureName)
-                .GetAwaiter()
-                .GetResult();
+            bool isFeatureEnabled = featureManager.IsEnabled(featureSearchable.FeatureName);
 
             bool shouldBeSearchable = featureSearchable.SearchableWhenEnabled ? isFeatureEnabled : !isFeatureEnabled;
 

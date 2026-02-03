@@ -4,6 +4,7 @@ using EPiServer.ServiceLocation;
 using Microsoft.FeatureManagement;
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
+using TechnicalDogsbody.Optimizely.FeatureFlagging.Extensions;
 
 /// <summary>
 /// Conditionally applies RegularExpression validation based on a feature flag.
@@ -22,10 +23,7 @@ public class FeatureFlaggedRegularExpressionAttribute(string featureName, string
     {
         var featureManager = ServiceLocator.Current.GetInstance<IFeatureManager>();
 
-        bool isFeatureEnabled = featureManager
-            .IsEnabledAsync(FeatureName)
-            .GetAwaiter()
-            .GetResult();
+        bool isFeatureEnabled = featureManager.IsEnabled(FeatureName);
 
         if (value == null)
         {
@@ -37,15 +35,9 @@ public class FeatureFlaggedRegularExpressionAttribute(string featureName, string
             return new ValidationResult($"{validationContext.DisplayName} must be a string.");
         }
 
-        Regex regex;
-        if (isFeatureEnabled)
-        {
-           regex = new Regex(EnabledPattern, RegexOptions.Compiled);
-        }
-        else
-        {
-            regex = new Regex(DisabledPattern, RegexOptions.Compiled);
-        }
+        var regex = isFeatureEnabled
+            ? new Regex(EnabledPattern, RegexOptions.Compiled)
+            : new Regex(DisabledPattern, RegexOptions.Compiled);
 
         if (!regex.IsMatch(stringValue))
         {

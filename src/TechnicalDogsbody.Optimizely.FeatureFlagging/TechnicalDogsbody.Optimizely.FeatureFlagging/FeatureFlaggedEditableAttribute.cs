@@ -4,6 +4,7 @@ using EPiServer.ServiceLocation;
 using EPiServer.Shell.ObjectEditing;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using Microsoft.FeatureManagement;
+using TechnicalDogsbody.Optimizely.FeatureFlagging.Extensions;
 
 /// <summary>
 /// Conditionally controls whether a property is editable based on a feature flag.
@@ -20,10 +21,7 @@ public class FeatureFlaggedEditableAttribute(string featureName, bool editableWh
     {
         var featureManager = ServiceLocator.Current.GetInstance<IFeatureManager>();
 
-        bool isFeatureEnabled = featureManager
-            .IsEnabledAsync(FeatureName)
-            .GetAwaiter()
-            .GetResult();
+        bool isFeatureEnabled = featureManager.IsEnabled(FeatureName);
 
         bool shouldBeEditable = EditableWhenEnabled ? isFeatureEnabled : !isFeatureEnabled;
 

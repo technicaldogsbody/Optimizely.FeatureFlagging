@@ -59,6 +59,7 @@
 		<PackageReference Include="Microsoft.FeatureManagement" Version="4.4.0" />
 		<PackageReference Include="MimeKit" Version="4.7.1" />
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+		<PackageReference Include="Scrutor" Version="7.0.0" />
 	</ItemGroup>
 
 </Project>

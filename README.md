@@ -209,6 +209,33 @@ public virtual string SystemGenerated { get; set; }
 
 ### Content Model Settings
 
+#### FeatureFlaggedContentType
+Show or hide entire content types based on feature flags.
+
+```csharp
+// Content type visible when feature is enabled (default)
+[ContentType(DisplayName = "New Article Page", GUID = "...")]
+[FeatureFlaggedContentType("NewArticleFeature")]
+public class NewArticlePage : PageData
+{
+    // Properties...
+}
+
+// Content type visible when feature is disabled (for deprecation)
+[ContentType(DisplayName = "Old Article Page", GUID = "...")]
+[FeatureFlaggedContentType("NewArticleFeature", VisibleWhenEnabled = true)]
+public class OldArticlePage : PageData
+{
+    // Properties...
+}
+```
+
+**Use cases:**
+- Gradual rollout of new content types
+- A/B testing different content structures
+- Deprecating old content types while maintaining data
+- Environment-specific content types
+
 #### FeatureFlaggedBackingType
 Switch the underlying PropertyData type.
 

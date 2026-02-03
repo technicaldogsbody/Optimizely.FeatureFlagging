@@ -24,10 +24,7 @@ public class FeatureFlaggedDisplayContentScannerExtension(IFeatureManager featur
                 continue;
             }
 
-            bool isFeatureEnabled = featureManager
-                .IsEnabledAsync(featureDisplay.FeatureName)
-                .GetAwaiter()
-                .GetResult();
+            bool isFeatureEnabled = featureManager.IsEnabled(featureDisplay.FeatureName);
 
             if (isFeatureEnabled)
             {

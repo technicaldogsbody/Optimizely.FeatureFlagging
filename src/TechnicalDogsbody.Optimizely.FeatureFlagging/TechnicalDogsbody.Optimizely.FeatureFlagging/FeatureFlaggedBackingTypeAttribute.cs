@@ -6,16 +6,10 @@ namespace TechnicalDogsbody.Optimizely.FeatureFlagging;
 /// When the feature is disabled, uses disabledBackingType.
 /// </summary>
 [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
-public class FeatureFlaggedBackingTypeAttribute : Attribute
+public class FeatureFlaggedBackingTypeAttribute(string featureName, Type enabledBackingType, Type disabledBackingType)
+    : Attribute
 {
-    public string FeatureName { get; }
-    public Type EnabledBackingType { get; }
-    public Type DisabledBackingType { get; }
-
-    public FeatureFlaggedBackingTypeAttribute(string featureName, Type enabledBackingType, Type disabledBackingType)
-    {
-        FeatureName = featureName ?? throw new ArgumentNullException(nameof(featureName));
-        EnabledBackingType = enabledBackingType ?? throw new ArgumentNullException(nameof(enabledBackingType));
-        DisabledBackingType = disabledBackingType ?? throw new ArgumentNullException(nameof(disabledBackingType));
-    }
+    public string FeatureName { get; } = featureName ?? throw new ArgumentNullException(nameof(featureName));
+    public Type EnabledBackingType { get; } = enabledBackingType ?? throw new ArgumentNullException(nameof(enabledBackingType));
+    public Type DisabledBackingType { get; } = disabledBackingType ?? throw new ArgumentNullException(nameof(disabledBackingType));
 }

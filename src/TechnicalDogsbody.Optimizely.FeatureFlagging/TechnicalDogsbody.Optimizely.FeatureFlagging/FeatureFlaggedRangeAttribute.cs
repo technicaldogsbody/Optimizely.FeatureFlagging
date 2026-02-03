@@ -3,6 +3,7 @@ namespace TechnicalDogsbody.Optimizely.FeatureFlagging;
 using EPiServer.ServiceLocation;
 using Microsoft.FeatureManagement;
 using System.ComponentModel.DataAnnotations;
+using TechnicalDogsbody.Optimizely.FeatureFlagging.Extensions;
 
 /// <summary>
 /// Conditionally applies Range validation based on a feature flag.
@@ -28,10 +29,7 @@ public class FeatureFlaggedRangeAttribute(
     {
         var featureManager = ServiceLocator.Current.GetInstance<IFeatureManager>();
 
-        bool isFeatureEnabled = featureManager
-            .IsEnabledAsync(FeatureName)
-            .GetAwaiter()
-            .GetResult();
+        bool isFeatureEnabled = featureManager.IsEnabled(FeatureName);
 
         double minimum = isFeatureEnabled ? EnabledMinimum : DisabledMinimum;
         double maximum = isFeatureEnabled ? EnabledMaximum : DisabledMaximum;
@@ -46,7 +44,7 @@ public class FeatureFlaggedRangeAttribute(
         {
             numericValue = Convert.ToDouble(value);
         }
-        catch
+        catch(InvalidCastException)
         {
             return new ValidationResult($"{validationContext.DisplayName} must be a numeric value.");
         }

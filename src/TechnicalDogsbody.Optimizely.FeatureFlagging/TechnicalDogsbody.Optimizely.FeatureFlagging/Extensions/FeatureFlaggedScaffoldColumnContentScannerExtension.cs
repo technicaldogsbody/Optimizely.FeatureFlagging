@@ -17,10 +17,7 @@ public class FeatureFlaggedScaffoldColumnContentScannerExtension(IFeatureManager
             return false;
         }
 
-        bool isFeatureEnabled = _featureManager
-            .IsEnabledAsync(featureScaffold.FeatureName)
-            .GetAwaiter()
-            .GetResult();
+        bool isFeatureEnabled = _featureManager.IsEnabled(featureScaffold.FeatureName);
 
         bool shouldScaffold = featureScaffold.ScaffoldWhenEnabled ? isFeatureEnabled : !isFeatureEnabled;
 

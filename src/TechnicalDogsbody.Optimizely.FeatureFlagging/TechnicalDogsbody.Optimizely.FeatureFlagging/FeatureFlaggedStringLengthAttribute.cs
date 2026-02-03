@@ -3,6 +3,7 @@ namespace TechnicalDogsbody.Optimizely.FeatureFlagging;
 using EPiServer.ServiceLocation;
 using Microsoft.FeatureManagement;
 using System.ComponentModel.DataAnnotations;
+using TechnicalDogsbody.Optimizely.FeatureFlagging.Extensions;
 
 /// <summary>
 /// Conditionally applies StringLength validation based on a feature flag.
@@ -26,10 +27,7 @@ public class FeatureFlaggedStringLengthAttribute(
     {
         var featureManager = ServiceLocator.Current.GetInstance<IFeatureManager>();
 
-        bool isFeatureEnabled = featureManager
-            .IsEnabledAsync(FeatureName)
-            .GetAwaiter()
-            .GetResult();
+        bool isFeatureEnabled = featureManager.IsEnabled(FeatureName);
 
         int maximumLength = isFeatureEnabled ? EnabledMaximumLength : DisabledMaximumLength;
         int minimumLength = isFeatureEnabled ? EnabledMinimumLength : DisabledMinimumLength;
