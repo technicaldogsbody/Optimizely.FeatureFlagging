@@ -1,0 +1,33 @@
+name: Build
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: | 
+          8.0.x
+          9.0.x
+          10.0.x
+        dotnet-quality: 'preview'
+        
+    - name: Restore dependencies
+      run: dotnet restore src/TechnicalDogsbody.Optimizely.FeatureFlagging/TechnicalDogsbody.Optimizely.FeatureFlagging.slnx
+    
+    - name: Build
+      run: dotnet build src/TechnicalDogsbody.Optimizely.FeatureFlagging/TechnicalDogsbody.Optimizely.FeatureFlagging.slnx --no-restore --configuration Release

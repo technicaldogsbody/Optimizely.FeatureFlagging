@@ -1,0 +1,64 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+		<LangVersion>latest</LangVersion>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+
+		<!-- Package Metadata -->
+		<PackageId>TechnicalDogsbody.Optimizely.FeatureFlagging</PackageId>
+		<Version>1.0.0</Version>
+		<Authors>TechnicalDogsbody</Authors>
+		<Company>TechnicalDogsbody</Company>
+		<Product>Optimizely Feature Flagging</Product>
+		<Description>Feature flag your Optimizely CMS content properties without code changes. Control property behaviour, validation, display settings, and metadata dynamically using Microsoft Feature Management.</Description>
+		<Copyright>Copyright © 2026 TechnicalDogsbody</Copyright>
+
+		<!-- URLs -->
+		<PackageProjectUrl>https://github.com/technicaldogsbody/Optimizely.FeatureFlagging</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/technicaldogsbody/Optimizely.FeatureFlagging</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+
+		<!-- Package Details -->
+		<PackageTags>optimizely;episerver;cms;feature-flags;feature-management;content-types;cms12</PackageTags>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageIcon>logo.png</PackageIcon>
+		<PackageReleaseNotes>See CHANGELOG.md for release notes</PackageReleaseNotes>
+
+		<!-- Source Link -->
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
+		<!-- Build Settings -->
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<NoWarn>$(NoWarn);CS1591</NoWarn>
+		<WarningsNotAsErrors>NU1903</WarningsNotAsErrors>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Compile Remove="modules\**" />
+		<EmbeddedResource Remove="modules\**" />
+		<None Remove="modules\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<!-- Include README and logo from repository root -->
+		<None Include="..\..\..\README.md" Pack="true" PackagePath="\" />
+		<None Include="..\..\..\logo.png" Pack="true" PackagePath="\" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="EPiServer.CMS.Core" Version="12.23.1" />
+		<PackageReference Include="EPiServer.CMS.UI.Admin" Version="12.34.2" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.3.9" />
+		<PackageReference Include="Microsoft.FeatureManagement" Version="4.4.0" />
+		<PackageReference Include="MimeKit" Version="4.7.1" />
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+	</ItemGroup>
+
+</Project>

@@ -1,0 +1,66 @@
+name: Publish to NuGet
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Package version (e.g., 1.0.0)'
+        required: true
+        type: string
+
+jobs:
+  publish:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: | 
+          8.0.x
+          9.0.x
+          10.0.x
+        dotnet-quality: 'preview'
+    
+    - name: Set version from input or tag
+      id: set_version
+      run: |
+        if ("${{ github.event_name }}" -eq "workflow_dispatch") {
+          $version = "${{ inputs.version }}"
+        } else {
+          $version = "${{ github.event.release.tag_name }}" -replace '^v', ''
+        }
+        echo "VERSION=$version" >> $env:GITHUB_OUTPUT
+        echo "Package version: $version"
+      shell: pwsh
+    
+    - name: Restore dependencies
+      run: dotnet restore src/TechnicalDogsbody.Optimizely.FeatureFlagging/TechnicalDogsbody.Optimizely.FeatureFlagging/TechnicalDogsbody.Optimizely.FeatureFlagging.csproj
+    
+    - name: Build
+      run: dotnet build src/TechnicalDogsbody.Optimizely.FeatureFlagging/TechnicalDogsbody.Optimizely.FeatureFlagging/TechnicalDogsbody.Optimizely.FeatureFlagging.csproj --configuration Release --no-restore /p:Version=${{ steps.set_version.outputs.VERSION }}
+    
+    - name: Pack
+      run: dotnet pack src/TechnicalDogsbody.Optimizely.FeatureFlagging/TechnicalDogsbody.Optimizely.FeatureFlagging/TechnicalDogsbody.Optimizely.FeatureFlagging.csproj --configuration Release --no-build --output ./packages /p:Version=${{ steps.set_version.outputs.VERSION }}
+    
+    - name: Push to NuGet
+      shell: pwsh
+      run: |
+        $packages = Get-ChildItem -Path ./packages -Filter *.nupkg
+        foreach ($package in $packages) {
+          Write-Host "Publishing $($package.Name)..."
+          dotnet nuget push $package.FullName --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+        }
+    
+    - name: Upload package artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: nuget-package
+        path: ./packages/*.nupkg
