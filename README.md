@@ -1,18 +1,13 @@
 # TechnicalDogsbody.Optimizely.FeatureFlagging
 
-<p align="center">
-  <img src="logo_and_title.png" alt="Optimizely Feature Flagging" width="400"/>
-</p>
+![Optimizely Feature Flagging](logo_and_title.png)
 
-<p align="center">
-  <a href="https://www.nuget.org/packages/TechnicalDogsbody.Optimizely.FeatureFlagging/"><img src="https://img.shields.io/nuget/v/TechnicalDogsbody.Optimizely.FeatureFlagging.svg" alt="NuGet"></a>
-  <a href="https://www.nuget.org/packages/TechnicalDogsbody.Optimizely.FeatureFlagging/"><img src="https://img.shields.io/nuget/dt/TechnicalDogsbody.Optimizely.FeatureFlagging.svg" alt="NuGet Downloads"></a>
-  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
-  <br />
-  <a href="https://github.com/technicaldogsbody/Optimizely.FeatureFlagging/actions/workflows/build.yml"><img src="https://github.com/technicaldogsbody/Optimizely.FeatureFlagging/actions/workflows/build.yml/badge.svg" alt="Build"></a>
-  <a href="https://github.com/technicaldogsbody/Optimizely.FeatureFlagging/actions/workflows/code-quality.yml"><img src="https://github.com/technicaldogsbody/Optimizely.FeatureFlagging/actions/workflows/code-quality.yml/badge.svg" alt="Code Quality"></a>
-  <a href="https://github.com/technicaldogsbody/Optimizely.FeatureFlagging/actions/workflows/codeql.yml"><img src="https://github.com/technicaldogsbody/Optimizely.FeatureFlagging/actions/workflows/codeql.yml/badge.svg" alt="CodeQL"></a>
-</p>
+[![NuGet](https://img.shields.io/nuget/v/TechnicalDogsbody.Optimizely.FeatureFlagging.svg)](https://www.nuget.org/packages/TechnicalDogsbody.Optimizely.FeatureFlagging/)
+[![NuGet Downloads](https://img.shields.io/nuget/dt/TechnicalDogsbody.Optimizely.FeatureFlagging.svg)](https://www.nuget.org/packages/TechnicalDogsbody.Optimizely.FeatureFlagging/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Build](https://github.com/technicaldogsbody/Optimizely.FeatureFlagging/actions/workflows/build.yml/badge.svg)](https://github.com/technicaldogsbody/Optimizely.FeatureFlagging/actions/workflows/build.yml)
+[![Code Quality](https://github.com/technicaldogsbody/Optimizely.FeatureFlagging/actions/workflows/code-quality.yml/badge.svg)](https://github.com/technicaldogsbody/Optimizely.FeatureFlagging/actions/workflows/code-quality.yml)
+[![CodeQL](https://github.com/technicaldogsbody/Optimizely.FeatureFlagging/actions/workflows/codeql.yml/badge.svg)](https://github.com/technicaldogsbody/Optimizely.FeatureFlagging/actions/workflows/codeql.yml)
 
 Feature flag your Optimizely CMS content properties without code changes. Control property behaviour, validation, display settings, and metadata dynamically using Microsoft Feature Management.
 
@@ -213,9 +208,9 @@ public virtual string SystemGenerated { get; set; }
 Show or hide entire content types based on feature flags.
 
 ```csharp
-// Content type visible when feature is enabled (default)
+// Content type visible when feature is enabled
 [ContentType(DisplayName = "New Article Page", GUID = "...")]
-[FeatureFlaggedContentType("NewArticleFeature")]
+[FeatureFlaggedContentType("NewArticleFeature", VisibleWhenEnabled = true)]
 public class NewArticlePage : PageData
 {
     // Properties...
@@ -223,7 +218,7 @@ public class NewArticlePage : PageData
 
 // Content type visible when feature is disabled (for deprecation)
 [ContentType(DisplayName = "Old Article Page", GUID = "...")]
-[FeatureFlaggedContentType("NewArticleFeature", VisibleWhenEnabled = true)]
+[FeatureFlaggedContentType("NewArticleFeature", VisibleWhenEnabled = false)]
 public class OldArticlePage : PageData
 {
     // Properties...
