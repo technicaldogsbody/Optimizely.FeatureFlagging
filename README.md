@@ -1,6 +1,6 @@
 # TechnicalDogsbody.Optimizely.FeatureFlagging
 
-![Optimizely Feature Flagging](logo_and_title.png)
+![Optimizely Feature Flagging](https://raw.githubusercontent.com/technicaldogsbody/Optimizely.FeatureFlagging/refs/heads/main/logo_and_title.png)
 
 [![NuGet](https://img.shields.io/nuget/v/TechnicalDogsbody.Optimizely.FeatureFlagging.svg)](https://www.nuget.org/packages/TechnicalDogsbody.Optimizely.FeatureFlagging/)
 [![NuGet Downloads](https://img.shields.io/nuget/dt/TechnicalDogsbody.Optimizely.FeatureFlagging.svg)](https://www.nuget.org/packages/TechnicalDogsbody.Optimizely.FeatureFlagging/)
