@@ -3,7 +3,6 @@ namespace TechnicalDogsbody.Optimizely.FeatureFlagging.Extensions;
 using EPiServer.Core;
 using EPiServer.DataAbstraction;
 using EPiServer.Security;
-using Microsoft.FeatureManagement;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Principal;
@@ -11,7 +10,7 @@ using System.Security.Principal;
 public class FeatureFlaggedContentTypeAvailabilityService(
     ContentTypeAvailabilityService defaultService,
     IContentTypeRepository contentTypeRepository,
-    IFeatureManager featureManager)
+    IFeatureFlagProvider featureFlagProvider)
     : ContentTypeAvailabilityService
 {
     public override AvailableSetting GetSetting(string contentTypeName) => defaultService.GetSetting(contentTypeName);
@@ -50,7 +49,7 @@ public class FeatureFlaggedContentTypeAvailabilityService(
             return true;
         }
 
-        bool featureEnabled = featureManager.IsEnabled(attribute.FeatureFlag);
+        bool featureEnabled = featureFlagProvider.IsEnabled(attribute.FeatureFlag);
 
         return attribute.VisibleWhenEnabled ? featureEnabled : !featureEnabled;
     }

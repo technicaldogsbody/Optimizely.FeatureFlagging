@@ -2,9 +2,8 @@ namespace TechnicalDogsbody.Optimizely.FeatureFlagging.Extensions;
 
 using System.Reflection;
 using EPiServer.DataAbstraction.RuntimeModel;
-using Microsoft.FeatureManagement;
 
-public class FeatureFlaggedSearchableContentScannerExtension(IFeatureManager featureManager) : ContentScannerExtension
+public class FeatureFlaggedSearchableContentScannerExtension(IFeatureFlagProvider featureFlagProvider) : ContentScannerExtension
 {
     public override void AssignValuesToProperties(ContentTypeModel contentTypeModel)
     {
@@ -24,7 +23,7 @@ public class FeatureFlaggedSearchableContentScannerExtension(IFeatureManager fea
                 continue;
             }
 
-            bool isFeatureEnabled = featureManager.IsEnabled(featureSearchable.FeatureName);
+            bool isFeatureEnabled = featureFlagProvider.IsEnabled(featureSearchable.FeatureName);
 
             bool shouldBeSearchable = featureSearchable.SearchableWhenEnabled ? isFeatureEnabled : !isFeatureEnabled;
 

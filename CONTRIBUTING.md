@@ -51,31 +51,6 @@ dotnet test
 - Add XML documentation comments for public APIs
 - Use meaningful variable and method names
 
-### Testing Requirements
-
-- **Unit Tests**: All new attributes must have comprehensive unit tests
-- **Coverage**: Aim for 100% coverage of functional code
-- **Test Naming**: Use descriptive names following AAA pattern
-- **Mocking**: Use Moq for dependency mocking
-
-Example test structure:
-
-```csharp
-[Test]
-public void Attribute_Should_BehaveLikeThis_When_ConditionMet()
-{
-    // Arrange
-    var featureManager = new Mock<IFeatureManager>();
-    featureManager.Setup(x => x.IsEnabledAsync("FeatureName"))
-        .ReturnsAsync(true);
-
-    // Act
-    var result = // test action
-
-    // Assert
-    Assert.That(result, Is.EqualTo(expected));
-}
-```
 
 ### Documentation
 
