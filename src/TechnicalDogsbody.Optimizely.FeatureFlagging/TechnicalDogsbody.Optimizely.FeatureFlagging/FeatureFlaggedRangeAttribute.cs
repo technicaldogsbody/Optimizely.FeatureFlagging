@@ -27,9 +27,9 @@ public class FeatureFlaggedRangeAttribute(
 
     protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
     {
-        var featureManager = ServiceLocator.Current.GetInstance<IFeatureManager>();
+        var featureFlagProvider = ServiceLocator.Current.GetInstance<IFeatureFlagProvider>();
 
-        bool isFeatureEnabled = featureManager.IsEnabled(FeatureName);
+        bool isFeatureEnabled = featureFlagProvider.IsEnabled(FeatureName);
 
         double minimum = isFeatureEnabled ? EnabledMinimum : DisabledMinimum;
         double maximum = isFeatureEnabled ? EnabledMaximum : DisabledMaximum;

@@ -649,7 +649,7 @@ Introduce feature flags gradually:
 
 ### Upgrading from Previous Versions
 
-**Breaking Changes in v2.0:**
+**Breaking Changes in v1.1:**
 
 - `AddOptimizelyFeatureFlagging()` is now obsolete, use `AddFeatureFlaggedContentTypes()`
 - `AddOptimizelyFeatureFlaggingExtensions()` is now obsolete, use `AddFeatureFlaggedContentTypes<TProvider>()`

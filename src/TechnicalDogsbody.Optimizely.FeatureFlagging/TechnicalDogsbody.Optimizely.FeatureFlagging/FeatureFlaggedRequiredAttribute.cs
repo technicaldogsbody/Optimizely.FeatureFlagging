@@ -36,7 +36,7 @@ public class FeatureFlaggedRequiredAttribute(string featureName, bool requiredWh
     {
         var featureFlagProvider = ServiceLocator.Current.GetInstance<IFeatureFlagProvider>();
 
-        bool isFeatureEnabled = featureFlagProvider.IsEnabled(FeatureName)
+        bool isFeatureEnabled = featureFlagProvider.IsEnabled(FeatureName);
 
         bool shouldBeRequired = RequiredWhenEnabled ? isFeatureEnabled : !isFeatureEnabled;
 
