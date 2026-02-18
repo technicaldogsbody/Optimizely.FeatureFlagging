@@ -36,7 +36,6 @@ public static class ServiceCollectionExtensions
         /// Use this overload when you want to use a different feature flag provider (e.g., LaunchDarkly, Optimizely Feature Experimentation, Flagsmith).
         /// </summary>
         /// <typeparam name="TProvider">The custom feature flag provider implementation.</typeparam>
-        /// <param name="services">The service collection.</param>
         /// <returns>The service collection for chaining.</returns>
         /// <example>
         /// <code>
