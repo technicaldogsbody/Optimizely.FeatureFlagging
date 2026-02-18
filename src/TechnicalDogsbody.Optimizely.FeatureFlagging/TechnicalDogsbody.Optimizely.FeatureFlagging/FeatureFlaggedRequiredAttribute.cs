@@ -15,9 +15,9 @@ public class FeatureFlaggedRequiredAttribute(string featureName, bool requiredWh
 
     public void CreateDisplayMetadata(DisplayMetadataProviderContext context)
     {
-        var featureManager = ServiceLocator.Current.GetInstance<IFeatureManager>();
+        var featureFlagProvider = ServiceLocator.Current.GetInstance<IFeatureFlagProvider>();
 
-        bool isFeatureEnabled = featureManager.IsEnabled(FeatureName);
+        bool isFeatureEnabled = featureFlagProvider.IsEnabled(FeatureName);
 
         bool shouldBeRequired = RequiredWhenEnabled ? isFeatureEnabled : !isFeatureEnabled;
 
@@ -34,12 +34,9 @@ public class FeatureFlaggedRequiredAttribute(string featureName, bool requiredWh
 
     protected override ValidationResult IsValid(object? value, ValidationContext validationContext)
     {
-        var featureManager = ServiceLocator.Current.GetInstance<IFeatureManager>();
+        var featureFlagProvider = ServiceLocator.Current.GetInstance<IFeatureFlagProvider>();
 
-        bool isFeatureEnabled = featureManager
-            .IsEnabledAsync(FeatureName)
-            .GetAwaiter()
-            .GetResult();
+        bool isFeatureEnabled = featureFlagProvider.IsEnabled(FeatureName);
 
         bool shouldBeRequired = RequiredWhenEnabled ? isFeatureEnabled : !isFeatureEnabled;
 

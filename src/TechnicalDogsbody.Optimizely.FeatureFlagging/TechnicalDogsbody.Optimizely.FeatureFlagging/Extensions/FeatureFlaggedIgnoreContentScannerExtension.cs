@@ -2,9 +2,8 @@ namespace TechnicalDogsbody.Optimizely.FeatureFlagging.Extensions;
 
 using System.Reflection;
 using EPiServer.DataAbstraction.RuntimeModel;
-using Microsoft.FeatureManagement;
 
-public class FeatureFlaggedIgnoreContentScannerExtension(IFeatureManager featureManager) : ContentScannerExtension
+public class FeatureFlaggedIgnoreContentScannerExtension(IFeatureFlagProvider featureFlagProvider) : ContentScannerExtension
 {
     public override bool ShouldIgnoreProperty(ContentTypeModel contentTypeModel, PropertyInfo propertyInfo)
     {
@@ -15,7 +14,7 @@ public class FeatureFlaggedIgnoreContentScannerExtension(IFeatureManager feature
             return false;
         }
 
-        bool isFeatureEnabled = featureManager.IsEnabled(featureScaffold.FeatureName);
+        bool isFeatureEnabled = featureFlagProvider.IsEnabled(featureScaffold.FeatureName);
 
         return !isFeatureEnabled;
     }

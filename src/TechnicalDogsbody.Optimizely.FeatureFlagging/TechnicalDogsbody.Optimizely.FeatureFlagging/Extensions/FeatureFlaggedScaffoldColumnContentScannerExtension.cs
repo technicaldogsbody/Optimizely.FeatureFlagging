@@ -2,12 +2,9 @@ namespace TechnicalDogsbody.Optimizely.FeatureFlagging.Extensions;
 
 using System.Reflection;
 using EPiServer.DataAbstraction.RuntimeModel;
-using Microsoft.FeatureManagement;
 
-public class FeatureFlaggedScaffoldColumnContentScannerExtension(IFeatureManager featureManager) : ContentScannerExtension
+public class FeatureFlaggedScaffoldColumnContentScannerExtension(IFeatureFlagProvider featureFlagProvider) : ContentScannerExtension
 {
-    private readonly IFeatureManager _featureManager = featureManager;
-
     public override bool ShouldIgnoreProperty(ContentTypeModel contentTypeModel, PropertyInfo propertyInfo)
     {
         var featureScaffold = propertyInfo.GetCustomAttribute<FeatureFlaggedScaffoldColumnAttribute>();
@@ -17,7 +14,7 @@ public class FeatureFlaggedScaffoldColumnContentScannerExtension(IFeatureManager
             return false;
         }
 
-        bool isFeatureEnabled = _featureManager.IsEnabled(featureScaffold.FeatureName);
+        bool isFeatureEnabled = featureFlagProvider.IsEnabled(featureScaffold.FeatureName);
 
         bool shouldScaffold = featureScaffold.ScaffoldWhenEnabled ? isFeatureEnabled : !isFeatureEnabled;
 

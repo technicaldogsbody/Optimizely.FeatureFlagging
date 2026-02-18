@@ -2,9 +2,8 @@ namespace TechnicalDogsbody.Optimizely.FeatureFlagging.Extensions;
 
 using System.Reflection;
 using EPiServer.DataAbstraction.RuntimeModel;
-using Microsoft.FeatureManagement;
 
-public class FeatureFlaggedDisplayContentScannerExtension(IFeatureManager featureManager) : ContentScannerExtension
+public class FeatureFlaggedDisplayContentScannerExtension(IFeatureFlagProvider featureFlagProvider) : ContentScannerExtension
 {
     public override void AssignValuesToProperties(ContentTypeModel contentTypeModel)
     {
@@ -24,7 +23,7 @@ public class FeatureFlaggedDisplayContentScannerExtension(IFeatureManager featur
                 continue;
             }
 
-            bool isFeatureEnabled = featureManager.IsEnabled(featureDisplay.FeatureName);
+            bool isFeatureEnabled = featureFlagProvider.IsEnabled(featureDisplay.FeatureName);
 
             if (isFeatureEnabled)
             {

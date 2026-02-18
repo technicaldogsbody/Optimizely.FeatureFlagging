@@ -9,14 +9,15 @@
 [![Code Quality](https://github.com/technicaldogsbody/Optimizely.FeatureFlagging/actions/workflows/code-quality.yml/badge.svg)](https://github.com/technicaldogsbody/Optimizely.FeatureFlagging/actions/workflows/code-quality.yml)
 [![CodeQL](https://github.com/technicaldogsbody/Optimizely.FeatureFlagging/actions/workflows/codeql.yml/badge.svg)](https://github.com/technicaldogsbody/Optimizely.FeatureFlagging/actions/workflows/codeql.yml)
 
-Feature flag your Optimizely CMS content properties without code changes. Control property behaviour, validation, display settings, and metadata dynamically using Microsoft Feature Management.
+Feature flag your Optimizely CMS content properties without code changes. Control property behaviour, validation, display settings, and metadata dynamically using any feature flag provider.
 
 ## Features
 
 - **Full Property Control**: Manage visibility, validation, editors, and metadata
-- **Microsoft Feature Management**: Built on industry-standard feature flagging
+- **Provider Agnostic**: Use Microsoft Feature Management, LaunchDarkly, Optimizely Feature Experimentation, or any custom provider
 - **Type Safe**: Compile-time validation of feature flag configurations
 - **Performance Optimised**: Scanner extensions run during content type initialisation
+- **Change Notifications**: Optional support for dynamic flag updates (provider-dependent)
 
 ## Installation
 
@@ -42,7 +43,7 @@ using TechnicalDogsbody.Optimizely.FeatureFlagging;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddCms();
-builder.Services.AddOptimizelyFeatureFlagging();
+builder.Services.AddFeatureFlaggedContentTypes(); // Uses Microsoft Feature Management by default
 
 var app = builder.Build();
 ```
@@ -257,15 +258,209 @@ Control property searchability.
 public virtual string ProductDescription { get; set; }
 ```
 
+## Custom Feature Flag Providers
+
+### Using a Different Provider
+
+The library supports any feature flag provider through the `IFeatureFlagProvider` interface.
+
+#### LaunchDarkly Example
+
+```csharp
+using LaunchDarkly.Sdk.Server;
+using TechnicalDogsbody.Optimizely.FeatureFlagging;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Register LaunchDarkly client
+builder.Services.AddSingleton<ILdClient>(sp =>
+{
+    var config = Configuration.Builder("your-sdk-key").Build();
+    return new LdClient(config);
+});
+
+// Register custom provider
+builder.Services.AddFeatureFlaggedContentTypes<LaunchDarklyFeatureFlagProvider>();
+```
+
+**LaunchDarkly Provider Implementation:**
+
+```csharp
+public class LaunchDarklyFeatureFlagProvider : IFeatureFlagProvider
+{
+    private readonly ILdClient _client;
+    
+    public LaunchDarklyFeatureFlagProvider(ILdClient client)
+    {
+        _client = client;
+    }
+    
+    public bool IsEnabled(string featureName)
+    {
+        var context = Context.New("default");
+        return _client.BoolVariation(featureName, context, false);
+    }
+    
+    public IDisposable? OnFlagChanged(Action<string> callback)
+    {
+        _client.FlagTracker.FlagChanged += (sender, args) =>
+        {
+            callback(args.Key);
+        };
+        
+        return new FlagChangeSubscription(_client);
+    }
+}
+```
+
+#### Optimizely Feature Experimentation Example
+
+```csharp
+using Optimizely;
+using TechnicalDogsbody.Optimizely.FeatureFlagging;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Register Optimizely Feature Experimentation client
+builder.Services.AddSingleton<OptimizelyClient>(sp =>
+{
+    return new OptimizelyClient(
+        datafile: "your-datafile",
+        configManager: new HttpProjectConfigManager.Builder()
+            .WithSdkKey("your-sdk-key")
+            .Build()
+    );
+});
+
+// Register custom provider
+builder.Services.AddFeatureFlaggedContentTypes<OptimizelyFeatureExperimentationProvider>();
+```
+
+**Optimizely Feature Experimentation Provider Implementation:**
+
+```csharp
+public class OptimizelyFeatureExperimentationProvider : IFeatureFlagProvider
+{
+    private readonly OptimizelyClient _client;
+    
+    public OptimizelyFeatureExperimentationProvider(OptimizelyClient client)
+    {
+        _client = client;
+    }
+    
+    public bool IsEnabled(string featureName)
+    {
+        var userId = "default-user";
+        return _client.IsFeatureEnabled(featureName, userId);
+    }
+    
+    public IDisposable? OnFlagChanged(Action<string> callback)
+    {
+        // Optimizely Feature Experimentation supports change notifications
+        _client.NotificationCenter.AddNotification(
+            NotificationCenter.NotificationType.OptimizelyConfigUpdate,
+            (args) => callback("*") // Signal all flags may have changed
+        );
+        
+        return null; // Or return proper disposable
+    }
+}
+```
+
+### Creating Your Own Provider
+
+Implement the `IFeatureFlagProvider` interface:
+
+```csharp
+public interface IFeatureFlagProvider
+{
+    /// <summary>
+    /// Checks if a feature is enabled.
+    /// </summary>
+    /// <param name="featureName">The feature name.</param>
+    /// <returns>True if enabled, otherwise false.</returns>
+    bool IsEnabled(string featureName);
+    
+    /// <summary>
+    /// Subscribes to feature flag changes.
+    /// Not all providers support this - returns null if unsupported.
+    /// </summary>
+    /// <param name="callback">Called when any flag changes.</param>
+    /// <returns>Disposable subscription, or null if provider doesn't support change notifications.</returns>
+    IDisposable? OnFlagChanged(Action<string> callback);
+}
+```
+
+**Simple Database Provider Example:**
+
+```csharp
+public class DatabaseFeatureFlagProvider : IFeatureFlagProvider
+{
+    private readonly IDbConnection _connection;
+    
+    public DatabaseFeatureFlagProvider(IDbConnection connection)
+    {
+        _connection = connection;
+    }
+    
+    public bool IsEnabled(string featureName)
+    {
+        var sql = "SELECT IsEnabled FROM FeatureFlags WHERE Name = @Name";
+        return _connection.QuerySingleOrDefault<bool>(sql, new { Name = featureName });
+    }
+    
+    public IDisposable? OnFlagChanged(Action<string> callback)
+    {
+        // Database polling not supported in this simple example
+        return null;
+    }
+}
+```
+
+**Configuration File Provider Example:**
+
+```csharp
+public class JsonFileFeatureFlagProvider : IFeatureFlagProvider
+{
+    private readonly string _filePath;
+    private readonly Dictionary<string, bool> _flags;
+    
+    public JsonFileFeatureFlagProvider(string filePath)
+    {
+        _filePath = filePath;
+        _flags = LoadFlags();
+    }
+    
+    public bool IsEnabled(string featureName)
+    {
+        return _flags.TryGetValue(featureName, out var enabled) && enabled;
+    }
+    
+    public IDisposable? OnFlagChanged(Action<string> callback)
+    {
+        // File watching could be implemented here
+        return null;
+    }
+    
+    private Dictionary<string, bool> LoadFlags()
+    {
+        var json = File.ReadAllText(_filePath);
+        return JsonSerializer.Deserialize<Dictionary<string, bool>>(json) 
+            ?? new Dictionary<string, bool>();
+    }
+}
+```
+
 ## Advanced Configuration
 
 ### Custom Feature Management Setup
 
-If you need custom Feature Management configuration, register extensions separately:
+If you need custom Feature Management configuration, register your provider manually:
 
 ```csharp
 using Microsoft.FeatureManagement;
 using TechnicalDogsbody.Optimizely.FeatureFlagging;
+using TechnicalDogsbody.Optimizely.FeatureFlagging.Providers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -273,8 +468,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddFeatureManagement(builder.Configuration.GetSection("Features"))
     .WithTargeting<CustomTargetingContextAccessor>();
 
-// Register only the scanner extensions
-builder.Services.AddOptimizelyFeatureFlaggingExtensions();
+// Register Microsoft provider manually
+builder.Services.AddSingleton<IFeatureFlagProvider, MicrosoftFeatureFlagProvider>();
+
+// Register feature flagged content types
+builder.Services.AddFeatureFlaggedContentTypes<MicrosoftFeatureFlagProvider>();
 ```
 
 ### Environment-Specific Configuration
@@ -298,6 +496,41 @@ Override feature flags per environment:
     "ExperimentalFeatures": false,
     "BetaValidation": false
   }
+}
+```
+
+### Dynamic Flag Updates
+
+Some providers support dynamic flag changes. Implement `OnFlagChanged` to respond to updates:
+
+```csharp
+public class FeatureFlagMonitor : IHostedService
+{
+    private readonly IFeatureFlagProvider _provider;
+    private IDisposable? _subscription;
+    
+    public FeatureFlagMonitor(IFeatureFlagProvider provider)
+    {
+        _provider = provider;
+    }
+    
+    public Task StartAsync(CancellationToken cancellationToken)
+    {
+        _subscription = _provider.OnFlagChanged(flagName =>
+        {
+            // Handle flag change
+            // Note: ContentScannerExtensions only run at startup
+            // Dynamic changes only affect runtime behaviour like FeatureFlaggedContentTypeAvailabilityService
+        });
+        
+        return Task.CompletedTask;
+    }
+    
+    public Task StopAsync(CancellationToken cancellationToken)
+    {
+        _subscription?.Dispose();
+        return Task.CompletedTask;
+    }
 }
 ```
 
@@ -337,9 +570,9 @@ Test content types with different feature flag configurations:
 public void Property_Should_Be_Required_When_Feature_Enabled()
 {
     // Arrange
-    var featureManager = new Mock<IFeatureManager>();
-    featureManager.Setup(x => x.IsEnabledAsync("StrictValidation"))
-        .ReturnsAsync(true);
+    var provider = new Mock<IFeatureFlagProvider>();
+    provider.Setup(x => x.IsEnabled("StrictValidation"))
+        .Returns(true);
 
     // Act & Assert
     var attribute = new FeatureFlaggedRequiredAttribute("StrictValidation");
@@ -350,8 +583,38 @@ public void Property_Should_Be_Required_When_Feature_Enabled()
 ### Performance
 
 - Scanner extensions run once during content type initialisation
-- Feature flag checks are cached by Microsoft Feature Management
+- Feature flag checks should be cached by your provider
 - No runtime performance impact on content rendering
+- Property metadata changes require application restart
+
+## Important Limitations
+
+### Startup-Only Property Metadata
+
+Content type scanning happens once at application startup. Changes to the following require an application restart:
+
+- Property names, descriptions, tabs (`FeatureFlaggedDisplay`)
+- Property visibility (`FeatureFlaggedScaffoldColumn`, `FeatureFlaggedIgnore`)
+- Backing types (`FeatureFlaggedBackingType`)
+- Culture-specific settings (`FeatureFlaggedCultureSpecific`)
+- Searchable settings (`FeatureFlaggedSearchable`)
+
+### Runtime-Dynamic Behaviour
+
+The following respond to flag changes without restart:
+
+- Content type availability (`FeatureFlaggedContentType`)
+- Property editability (`FeatureFlaggedEditable`)
+
+### Provider Change Notification Support
+
+Not all providers support `OnFlagChanged`:
+
+- **Microsoft Feature Management**: No (returns null)
+- **LaunchDarkly**: Yes
+- **Optimizely Feature Experimentation**: Yes
+- **Flagsmith**: Yes
+- **Custom providers**: Optional
 
 ## Migration Guide
 
@@ -379,10 +642,36 @@ public virtual string Title { get; set; }
 
 Introduce feature flags gradually:
 
-1. Add feature flag to `appsettings.json` (disabled)
+1. Add feature flag to your provider configuration (disabled)
 2. Apply feature-flagged attribute
 3. Test with flag enabled in development
 4. Enable flag in production when ready
+
+### Upgrading from Previous Versions
+
+**Breaking Changes in v1.1:**
+
+- `AddOptimizelyFeatureFlagging()` is now obsolete, use `AddFeatureFlaggedContentTypes()`
+- `AddOptimizelyFeatureFlaggingExtensions()` is now obsolete, use `AddFeatureFlaggedContentTypes<TProvider>()`
+- Direct `IFeatureManager` usage replaced with `IFeatureFlagProvider` abstraction
+
+**Migration Steps:**
+
+```csharp
+// Old (still works but obsolete)
+services.AddOptimizelyFeatureFlagging();
+
+// New
+services.AddFeatureFlaggedContentTypes(); // Uses Microsoft Feature Management by default
+
+// Old (custom setup)
+services.AddFeatureManagement();
+services.AddOptimizelyFeatureFlaggingExtensions();
+
+// New (custom provider)
+services.AddSingleton<ILdClient>(...);
+services.AddFeatureFlaggedContentTypes<LaunchDarklyFeatureFlagProvider>();
+```
 
 ## Troubleshooting
 
@@ -390,25 +679,31 @@ Introduce feature flags gradually:
 
 **Problem**: Changes to feature flags not reflected in CMS.
 
-**Solution**: Content type metadata is cached. Restart the application or clear Optimizely's content type cache.
+**Solution**: Content type metadata is cached and only loaded at startup. Restart the application to see property-level changes (names, visibility, etc.). Runtime changes like content type availability work without restart.
 
-### Feature Manager Not Found
+### Feature Provider Not Found
 
-**Problem**: `IFeatureManager` cannot be resolved.
+**Problem**: `IFeatureFlagProvider` cannot be resolved.
 
-**Solution**: Ensure `AddOptimizelyFeatureFlagging()` is called in service registration.
+**Solution**: Ensure `AddFeatureFlaggedContentTypes()` or `AddFeatureFlaggedContentTypes<TProvider>()` is called in service registration.
 
 ### Attributes Not Applied
 
 **Problem**: Feature-flagged attributes have no effect.
 
-**Solution**: Check that scanner extensions are registered. Use `AddOptimizelyFeatureFlagging()` or manually register extensions.
+**Solution**: Check that scanner extensions are registered. Use `AddFeatureFlaggedContentTypes()` or manually register extensions.
+
+### Change Notifications Not Working
+
+**Problem**: `OnFlagChanged` returns null or doesn't fire.
+
+**Solution**: Not all providers support change notifications. Microsoft Feature Management doesn't support this by default. Consider LaunchDarkly or Optimizely Feature Experimentation for dynamic updates.
 
 ## Requirements
 
 - Optimizely CMS 12.0 or higher
 - .NET 8.0, 9.0, or 10.0
-- Microsoft.FeatureManagement.AspNetCore 3.0 or higher
+- Microsoft.FeatureManagement.AspNetCore 3.0 or higher (if using default provider)
 
 ## Contributing
 
@@ -437,8 +732,15 @@ See [CHANGELOG.md](https://github.com/technicaldogsbody/Optimizely.FeatureFlaggi
 ## Acknowledgements
 
 Built on:
-- [Microsoft Feature Management](https://github.com/microsoft/FeatureManagement-Dotnet)
 - [Optimizely CMS](https://www.optimizely.com/)
+- [Microsoft Feature Management](https://github.com/microsoft/FeatureManagement-Dotnet) (default provider)
+
+Supports integration with:
+- [LaunchDarkly](https://launchdarkly.com/)
+- [Optimizely Feature Experimentation](https://www.optimizely.com/products/experiment/feature-experimentation/)
+- [Flagsmith](https://www.flagsmith.com/)
+- [Unleash](https://www.getunleash.io/)
+- Any custom feature flag provider
 
 ---
 

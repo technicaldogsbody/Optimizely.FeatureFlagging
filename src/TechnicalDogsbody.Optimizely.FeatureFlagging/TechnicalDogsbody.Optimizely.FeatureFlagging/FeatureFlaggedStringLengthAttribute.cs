@@ -25,9 +25,9 @@ public class FeatureFlaggedStringLengthAttribute(
 
     protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
     {
-        var featureManager = ServiceLocator.Current.GetInstance<IFeatureManager>();
+        var featureFlagProvider = ServiceLocator.Current.GetInstance<IFeatureFlagProvider>();
 
-        bool isFeatureEnabled = featureManager.IsEnabled(FeatureName);
+        bool isFeatureEnabled = featureFlagProvider.IsEnabled(FeatureName);
 
         int maximumLength = isFeatureEnabled ? EnabledMaximumLength : DisabledMaximumLength;
         int minimumLength = isFeatureEnabled ? EnabledMinimumLength : DisabledMinimumLength;

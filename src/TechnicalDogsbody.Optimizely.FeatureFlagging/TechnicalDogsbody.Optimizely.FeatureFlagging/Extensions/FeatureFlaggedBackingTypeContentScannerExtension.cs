@@ -2,9 +2,8 @@ namespace TechnicalDogsbody.Optimizely.FeatureFlagging.Extensions;
 
 using System.Reflection;
 using EPiServer.DataAbstraction.RuntimeModel;
-using Microsoft.FeatureManagement;
 
-public class FeatureFlaggedBackingTypeContentScannerExtension(IFeatureManager featureManager) : ContentScannerExtension
+public class FeatureFlaggedBackingTypeContentScannerExtension(IFeatureFlagProvider featureFlagProvider) : ContentScannerExtension
 {
     public override void AssignValuesToProperties(ContentTypeModel contentTypeModel)
     {
@@ -24,7 +23,7 @@ public class FeatureFlaggedBackingTypeContentScannerExtension(IFeatureManager fe
                 continue;
             }
 
-            bool isFeatureEnabled = featureManager.IsEnabled(featureBackingType.FeatureName);
+            bool isFeatureEnabled = featureFlagProvider.IsEnabled(featureBackingType.FeatureName);
 
             var backingType = isFeatureEnabled
                 ? featureBackingType.EnabledBackingType

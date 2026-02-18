@@ -2,9 +2,8 @@ namespace TechnicalDogsbody.Optimizely.FeatureFlagging.Extensions;
 
 using System.Reflection;
 using EPiServer.DataAbstraction.RuntimeModel;
-using Microsoft.FeatureManagement;
 
-public class FeatureFlaggedCultureSpecificContentScannerExtension(IFeatureManager featureManager) : ContentScannerExtension
+public class FeatureFlaggedCultureSpecificContentScannerExtension(IFeatureFlagProvider featureFlagProvider) : ContentScannerExtension
 {
     public override void AssignValuesToProperties(ContentTypeModel contentTypeModel)
     {
@@ -24,7 +23,7 @@ public class FeatureFlaggedCultureSpecificContentScannerExtension(IFeatureManage
                 continue;
             }
 
-            bool isFeatureEnabled = featureManager.IsEnabled(featureCultureSpecific.FeatureName);
+            bool isFeatureEnabled = featureFlagProvider.IsEnabled(featureCultureSpecific.FeatureName);
 
             bool shouldBeCultureSpecific = featureCultureSpecific.CultureSpecificWhenEnabled ? isFeatureEnabled : !isFeatureEnabled;
 

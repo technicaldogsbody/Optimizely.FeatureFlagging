@@ -21,9 +21,9 @@ public class FeatureFlaggedRegularExpressionAttribute(string featureName, string
 
     protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
     {
-        var featureManager = ServiceLocator.Current.GetInstance<IFeatureManager>();
+        var featureFlagProvider = ServiceLocator.Current.GetInstance<IFeatureFlagProvider>();
 
-        bool isFeatureEnabled = featureManager.IsEnabled(FeatureName);
+        bool isFeatureEnabled = featureFlagProvider.IsEnabled(FeatureName);
 
         if (value == null)
         {
