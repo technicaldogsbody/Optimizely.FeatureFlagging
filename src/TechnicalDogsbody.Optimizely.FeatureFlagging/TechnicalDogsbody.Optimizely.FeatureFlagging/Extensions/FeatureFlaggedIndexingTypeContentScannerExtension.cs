@@ -4,8 +4,7 @@ using System.Reflection;
 using EPiServer.DataAbstraction;
 using EPiServer.DataAbstraction.RuntimeModel;
 
-#pragma warning disable CS0618 // FeatureFlaggedSearchableAttribute is intentionally kept for backwards compatibility
-public class FeatureFlaggedSearchableContentScannerExtension(
+public class FeatureFlaggedIndexingTypeContentScannerExtension(
     IFeatureFlagProvider featureFlagProvider,
     IContentTypeRepository contentTypeRepository) : ContentScannerExtension
 {
@@ -24,8 +23,8 @@ public class FeatureFlaggedSearchableContentScannerExtension(
                 continue;
             }
 
-            var featureSearchable = propertyInfo.GetCustomAttribute<FeatureFlaggedSearchableAttribute>();
-            if (featureSearchable == null)
+            var featureIndexingType = propertyInfo.GetCustomAttribute<FeatureFlaggedIndexingTypeAttribute>();
+            if (featureIndexingType == null)
             {
                 continue;
             }
@@ -36,9 +35,10 @@ public class FeatureFlaggedSearchableContentScannerExtension(
                 continue;
             }
 
-            bool isFeatureEnabled = featureFlagProvider.IsEnabled(featureSearchable.FeatureName);
-            bool shouldBeSearchable = featureSearchable.SearchableWhenEnabled ? isFeatureEnabled : !isFeatureEnabled;
-            var targetIndexingType = shouldBeSearchable ? IndexingType.Searchable : IndexingType.Disabled;
+            bool isFeatureEnabled = featureFlagProvider.IsEnabled(featureIndexingType.FeatureName);
+            var targetIndexingType = isFeatureEnabled
+                ? featureIndexingType.EnabledIndexingType
+                : featureIndexingType.DisabledIndexingType;
 
             if (existingDef.IndexingType == targetIndexingType)
             {
@@ -64,4 +64,3 @@ public class FeatureFlaggedSearchableContentScannerExtension(
         }
     }
 }
-#pragma warning restore CS0618

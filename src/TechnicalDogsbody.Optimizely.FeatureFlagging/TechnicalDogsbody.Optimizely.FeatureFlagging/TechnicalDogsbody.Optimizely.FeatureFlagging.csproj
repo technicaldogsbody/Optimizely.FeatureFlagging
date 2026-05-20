@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+		<TargetFrameworks>net10.0</TargetFrameworks>
 		<LangVersion>latest</LangVersion>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
@@ -9,11 +9,11 @@
 
 		<!-- Package Metadata -->
 		<PackageId>TechnicalDogsbody.Optimizely.FeatureFlagging</PackageId>
-		<Version>1.0.0</Version>
+		<Version>2.0.0</Version>
 		<Authors>TechnicalDogsbody</Authors>
 		<Company>TechnicalDogsbody</Company>
 		<Product>Optimizely Feature Flagging</Product>
-		<Description>Feature flag your Optimizely CMS content properties without code changes. Control property behaviour, validation, display settings, and metadata dynamically using Microsoft Feature Management.</Description>
+		<Description>Feature flag your Optimizely CMS 13 content properties without code changes. Control property behaviour, validation, display settings, and metadata dynamically using Microsoft Feature Management. Supports Visual Builder / Experience pages.</Description>
 		<Copyright>Copyright © 2026 TechnicalDogsbody</Copyright>
 
 		<!-- URLs -->
@@ -22,7 +22,7 @@
 		<RepositoryType>git</RepositoryType>
 
 		<!-- Package Details -->
-		<PackageTags>optimizely;episerver;cms;feature-flags;feature-management;content-types;cms12</PackageTags>
+		<PackageTags>optimizely;episerver;cms;feature-flags;feature-management;content-types;cms13;visual-builder</PackageTags>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageIcon>logo.png</PackageIcon>
@@ -53,11 +53,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="EPiServer.CMS.Core" Version="12.23.1" />
-		<PackageReference Include="EPiServer.CMS.UI.Admin" Version="12.34.2" />
-		<PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.3.9" />
+		<PackageReference Include="EPiServer.CMS.Core" Version="13.0.2" />
+		<PackageReference Include="EPiServer.CMS.UI.Admin" Version="13.0.2" />
 		<PackageReference Include="Microsoft.FeatureManagement" Version="4.4.0" />
-		<PackageReference Include="MimeKit" Version="4.7.1" />
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
 		<PackageReference Include="Scrutor" Version="7.0.0" />
 	</ItemGroup>

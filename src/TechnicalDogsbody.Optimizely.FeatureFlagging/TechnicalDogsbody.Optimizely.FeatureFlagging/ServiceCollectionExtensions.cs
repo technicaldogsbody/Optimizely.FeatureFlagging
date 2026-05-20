@@ -64,6 +64,7 @@ public static class ServiceCollectionExtensions
             services.AddSingleton<FeatureFlaggedCultureSpecificContentScannerExtension>();
             services.AddSingleton<FeatureFlaggedDisplayContentScannerExtension>();
             services.AddSingleton<FeatureFlaggedIgnoreContentScannerExtension>();
+            services.AddSingleton<FeatureFlaggedIndexingTypeContentScannerExtension>();
             services.AddSingleton<FeatureFlaggedScaffoldColumnContentScannerExtension>();
             services.AddSingleton<FeatureFlaggedSearchableContentScannerExtension>();
             services.Decorate<ContentTypeAvailabilityService, FeatureFlaggedContentTypeAvailabilityService>();

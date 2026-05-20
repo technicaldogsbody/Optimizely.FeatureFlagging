@@ -42,15 +42,27 @@ public class FeatureFlaggedContentTypeAvailabilityService(
     private bool IsFeatureEnabled(string contentTypeName)
     {
         var contentType = contentTypeRepository.Load(contentTypeName);
+        var modelType = contentType?.ModelType;
 
-        if (contentType?.ModelType?.GetCustomAttributes(typeof(FeatureFlaggedContentTypeAttribute), false)
-                .FirstOrDefault() is not FeatureFlaggedContentTypeAttribute attribute)
+        if (modelType == null)
         {
             return true;
         }
 
-        bool featureEnabled = featureFlagProvider.IsEnabled(attribute.FeatureFlag);
+        if (modelType.GetCustomAttributes(typeof(FeatureFlaggedContentTypeAttribute), false)
+                .FirstOrDefault() is FeatureFlaggedContentTypeAttribute contentTypeAttr)
+        {
+            bool featureEnabled = featureFlagProvider.IsEnabled(contentTypeAttr.FeatureFlag);
+            return contentTypeAttr.VisibleWhenEnabled ? featureEnabled : !featureEnabled;
+        }
 
-        return attribute.VisibleWhenEnabled ? featureEnabled : !featureEnabled;
+        if (modelType.GetCustomAttributes(typeof(FeatureFlaggedVisualBuilderTypeAttribute), false)
+                .FirstOrDefault() is FeatureFlaggedVisualBuilderTypeAttribute vbAttr)
+        {
+            bool featureEnabled = featureFlagProvider.IsEnabled(vbAttr.FeatureFlag);
+            return vbAttr.VisibleWhenEnabled ? featureEnabled : !featureEnabled;
+        }
+
+        return true;
     }
 }
