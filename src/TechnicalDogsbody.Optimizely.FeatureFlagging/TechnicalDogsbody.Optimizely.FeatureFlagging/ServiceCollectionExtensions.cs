@@ -1,6 +1,7 @@
 namespace TechnicalDogsbody.Optimizely.FeatureFlagging;
 
 using EPiServer.DataAbstraction;
+using EPiServer.ServiceLocation;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.FeatureManagement;
 using TechnicalDogsbody.Optimizely.FeatureFlagging.Extensions;
@@ -67,7 +68,11 @@ public static class ServiceCollectionExtensions
             services.AddSingleton<FeatureFlaggedIndexingTypeContentScannerExtension>();
             services.AddSingleton<FeatureFlaggedScaffoldColumnContentScannerExtension>();
             services.AddSingleton<FeatureFlaggedSearchableContentScannerExtension>();
-            services.Decorate<ContentTypeAvailabilityService, FeatureFlaggedContentTypeAvailabilityService>();
+            services.Decorate<ContentTypeAvailabilityService>((inner, sp) =>
+                new FeatureFlaggedContentTypeAvailabilityService(
+                    inner,
+                    () => sp.GetRequiredService<IContentTypeRepository>(),
+                    sp.GetRequiredService<IFeatureFlagProvider>()));
 
             return services;
         }

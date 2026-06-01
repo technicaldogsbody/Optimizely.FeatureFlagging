@@ -1,12 +1,13 @@
 namespace TechnicalDogsbody.Optimizely.FeatureFlagging.Providers;
 
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.FeatureManagement;
 
 /// <summary>
 /// Feature flag provider using Microsoft.FeatureManagement.
 /// This is the default implementation.
 /// </summary>
-public class MicrosoftFeatureFlagProvider(IFeatureManager featureManager) : IFeatureFlagProvider
+public class MicrosoftFeatureFlagProvider(IServiceScopeFactory serviceScopeFactory) : IFeatureFlagProvider
 {
     /// <summary>
     /// Checks if a feature is enabled.
@@ -15,10 +16,9 @@ public class MicrosoftFeatureFlagProvider(IFeatureManager featureManager) : IFea
     /// <returns>True if enabled, otherwise false.</returns>
     public bool IsEnabled(string featureName)
     {
-        return featureManager
-            .IsEnabledAsync(featureName)
-            .GetAwaiter()
-            .GetResult();
+        using var scope = serviceScopeFactory.CreateScope();
+        var featureManager = scope.ServiceProvider.GetRequiredService<IFeatureManager>();
+        return Task.Run(() => featureManager.IsEnabledAsync(featureName)).GetAwaiter().GetResult();
     }
 
     /// <summary>

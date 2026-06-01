@@ -3,13 +3,14 @@ namespace TechnicalDogsbody.Optimizely.FeatureFlagging.Extensions;
 using EPiServer.Core;
 using EPiServer.DataAbstraction;
 using EPiServer.Security;
+using EPiServer.ServiceLocation;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Principal;
 
 public class FeatureFlaggedContentTypeAvailabilityService(
     ContentTypeAvailabilityService defaultService,
-    IContentTypeRepository contentTypeRepository,
+    ServiceAccessor<IContentTypeRepository> contentTypeRepositoryAccessor,
     IFeatureFlagProvider featureFlagProvider)
     : ContentTypeAvailabilityService
 {
@@ -41,7 +42,7 @@ public class FeatureFlaggedContentTypeAvailabilityService(
 
     private bool IsFeatureEnabled(string contentTypeName)
     {
-        var contentType = contentTypeRepository.Load(contentTypeName);
+        var contentType = contentTypeRepositoryAccessor().Load(contentTypeName);
         var modelType = contentType?.ModelType;
 
         if (modelType == null)
