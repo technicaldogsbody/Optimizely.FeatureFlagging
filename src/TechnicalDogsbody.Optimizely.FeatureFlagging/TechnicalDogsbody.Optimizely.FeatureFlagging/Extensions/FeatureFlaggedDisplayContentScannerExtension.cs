@@ -1,7 +1,9 @@
 namespace TechnicalDogsbody.Optimizely.FeatureFlagging.Extensions;
 
 using System.Reflection;
+using EPiServer.DataAbstraction;
 using EPiServer.DataAbstraction.RuntimeModel;
+using EPiServer.ServiceLocation;
 
 public class FeatureFlaggedDisplayContentScannerExtension(IFeatureFlagProvider featureFlagProvider) : ContentScannerExtension
 {
@@ -29,7 +31,7 @@ public class FeatureFlaggedDisplayContentScannerExtension(IFeatureFlagProvider f
             {
                 if (!string.IsNullOrWhiteSpace(featureDisplay.EnabledName))
                 {
-                    propertyDefinition.Name = featureDisplay.EnabledName;
+                    propertyDefinition.DisplayName = featureDisplay.EnabledName;
                 }
 
                 if (!string.IsNullOrWhiteSpace(featureDisplay.EnabledDescription))
@@ -51,7 +53,7 @@ public class FeatureFlaggedDisplayContentScannerExtension(IFeatureFlagProvider f
             {
                 if (!string.IsNullOrWhiteSpace(featureDisplay.DisabledName))
                 {
-                    propertyDefinition.Name = featureDisplay.DisabledName;
+                    propertyDefinition.DisplayName = featureDisplay.DisabledName;
                 }
 
                 if (!string.IsNullOrWhiteSpace(featureDisplay.DisabledDescription))

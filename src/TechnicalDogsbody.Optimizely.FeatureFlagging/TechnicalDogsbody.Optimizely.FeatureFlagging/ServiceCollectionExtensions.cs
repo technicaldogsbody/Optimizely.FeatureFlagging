@@ -1,6 +1,7 @@
 namespace TechnicalDogsbody.Optimizely.FeatureFlagging;
 
 using EPiServer.DataAbstraction;
+using EPiServer.DataAbstraction.RuntimeModel;
 using EPiServer.ServiceLocation;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.FeatureManagement;
@@ -60,14 +61,15 @@ public static class ServiceCollectionExtensions
         /// </summary>
         private IServiceCollection AddOptimizelyFeatureFlaggingCore()
         {
-            // Register all content scanner extensions
-            services.AddSingleton<FeatureFlaggedBackingTypeContentScannerExtension>();
-            services.AddSingleton<FeatureFlaggedCultureSpecificContentScannerExtension>();
-            services.AddSingleton<FeatureFlaggedDisplayContentScannerExtension>();
-            services.AddSingleton<FeatureFlaggedIgnoreContentScannerExtension>();
-            services.AddSingleton<FeatureFlaggedIndexingTypeContentScannerExtension>();
-            services.AddSingleton<FeatureFlaggedScaffoldColumnContentScannerExtension>();
-            services.AddSingleton<FeatureFlaggedSearchableContentScannerExtension>();
+            // Register all content scanner extensions - must be registered as ContentScannerExtension
+            // so Optimizely can discover them via IEnumerable<ContentScannerExtension>
+            services.AddSingleton<ContentScannerExtension, FeatureFlaggedBackingTypeContentScannerExtension>();
+            services.AddSingleton<ContentScannerExtension, FeatureFlaggedCultureSpecificContentScannerExtension>();
+            services.AddSingleton<ContentScannerExtension, FeatureFlaggedDisplayContentScannerExtension>();
+            services.AddSingleton<ContentScannerExtension, FeatureFlaggedIgnoreContentScannerExtension>();
+            services.AddSingleton<ContentScannerExtension, FeatureFlaggedIndexingTypeContentScannerExtension>();
+            services.AddSingleton<ContentScannerExtension, FeatureFlaggedScaffoldColumnContentScannerExtension>();
+            services.AddSingleton<ContentScannerExtension, FeatureFlaggedSearchableContentScannerExtension>();
             services.Decorate<ContentTypeAvailabilityService>((inner, sp) =>
                 new FeatureFlaggedContentTypeAvailabilityService(
                     inner,
