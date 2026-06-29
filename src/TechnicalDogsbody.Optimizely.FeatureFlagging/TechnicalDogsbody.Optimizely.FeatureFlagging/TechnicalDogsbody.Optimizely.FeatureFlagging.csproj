@@ -53,8 +53,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="EPiServer.CMS.Core" Version="13.0.0" />
-		<PackageReference Include="EPiServer.CMS.UI.Admin" Version="13.0.0" />
+		<PackageReference Include="EPiServer.CMS.Core" Version="13.1.0" />
+		<PackageReference Include="EPiServer.CMS.UI.Admin" Version="13.1.0" />
 		<PackageReference Include="Microsoft.FeatureManagement" Version="4.4.0" />
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
 		<PackageReference Include="Scrutor" Version="7.0.0" />

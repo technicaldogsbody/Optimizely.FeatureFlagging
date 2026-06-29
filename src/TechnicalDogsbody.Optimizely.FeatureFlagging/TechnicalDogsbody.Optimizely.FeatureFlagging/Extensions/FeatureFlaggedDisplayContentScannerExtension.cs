@@ -16,12 +16,14 @@ public class FeatureFlaggedDisplayContentScannerExtension(IFeatureFlagProvider f
             var propertyInfo = contentTypeModel.ModelType.GetProperty(propertyDefinition.Name);
             if (propertyInfo == null)
             {
+                // If the property doesn't exist on the model type, we can't apply feature flags to it
                 continue;
             }
 
             var featureDisplay = propertyInfo.GetCustomAttribute<FeatureFlaggedDisplayAttribute>();
             if (featureDisplay == null)
             {
+                // This property doesn't have our attribute, so skip it
                 continue;
             }
 

@@ -16,8 +16,11 @@ public class FeatureFlaggedScaffoldColumnContentScannerExtension(IFeatureFlagPro
 
         bool isFeatureEnabled = featureFlagProvider.IsEnabled(featureScaffold.FeatureName);
 
+        // When ScaffoldWhenEnabled is true, the property should be scaffolded when feature is enabled
+        // When ScaffoldWhenEnabled is false, the property should be scaffolded when feature is disabled
         bool shouldScaffold = featureScaffold.ScaffoldWhenEnabled ? isFeatureEnabled : !isFeatureEnabled;
 
+        // Return true to ignore (hide) the property if we shouldn't scaffold it
         return !shouldScaffold;
     }
 }
